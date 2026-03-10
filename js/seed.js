@@ -112,8 +112,8 @@ window.seedSubjects = async function () {
     const confirmed = confirm(`Предмети вже є. Додати ще раз?`);
     if (!confirmed) return;
   }
-  for (const name of SUBJECTS) {
-    await addDoc(collection(db, "subjects"), { name });
+  for (const s of SUBJECTS) {
+    await addDoc(collection(db, "subjects"), { name: s.name, teachers: s.teachers || {} });
   }
   alert("✅ Предмети додано!");
 };
