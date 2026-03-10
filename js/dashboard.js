@@ -41,22 +41,62 @@ document.getElementById("logoutBtn").addEventListener("click", async () => {
 const dateInput = document.getElementById("date");
 dateInput.value = new Date().toISOString().split("T")[0];
 
+// ─── Subjects data cache ───────────────────────────────────────────────────────
+let subjectsData = {}; // name → { teachers: { "1": "...", "2": "...", "all": "..." } }
+
 // ─── Load subjects ─────────────────────────────────────────────────────────────
 async function loadSubjects() {
   const snap = await getDocs(collection(db, "subjects"));
   const select = document.getElementById("subject");
   select.innerHTML = "";
+  subjectsData = {};
+
   if (snap.empty) {
     select.innerHTML = `<option value="">— немає предметів —</option>`;
     return;
   }
+
   snap.forEach(d => {
+    const data = d.data();
+    subjectsData[data.name] = data;
     const opt = document.createElement("option");
-    opt.value = d.data().name;
-    opt.textContent = d.data().name;
+    opt.value = data.name;
+    opt.textContent = data.name;
     select.appendChild(opt);
   });
+
+  updateTeacherField();
 }
+
+// ─── Auto-fill teacher based on subject + type + subgroup ────────────────────
+function updateTeacherField() {
+  const subject = document.getElementById("subject").value;
+  const subgroup = document.getElementById("subgroup").value;
+  const type = document.getElementById("type").value;
+  const teacherInput = document.getElementById("teacher");
+
+  if (!subject || !subjectsData[subject]) {
+    teacherInput.value = "";
+    return;
+  }
+
+  const teachers = subjectsData[subject].teachers || {};
+
+  // Try: teachers[type][subgroup] → teachers[type]["all"] → teachers[subgroup] → teachers["all"]
+  let teacher = "";
+  if (teachers[type]) {
+    teacher = teachers[type][subgroup] || teachers[type]["all"] || "";
+  }
+  if (!teacher) {
+    teacher = teachers[subgroup] || teachers["all"] || "";
+  }
+
+  teacherInput.value = teacher;
+}
+
+document.getElementById("subject").addEventListener("change", updateTeacherField);
+document.getElementById("subgroup").addEventListener("change", updateTeacherField);
+document.getElementById("type").addEventListener("change", updateTeacherField);
 
 // ─── State ─────────────────────────────────────────────────────────────────────
 let students = [];
@@ -103,6 +143,7 @@ document.getElementById("saveBtn").addEventListener("click", async () => {
   const subject = document.getElementById("subject").value;
   const type = document.getElementById("type").value;
   const subgroup = document.getElementById("subgroup").value;
+  const teacher = document.getElementById("teacher").value;
 
   if (!date || !subject) {
     showToast("Вкажіть дату та предмет", "error");
@@ -126,18 +167,17 @@ document.getElementById("saveBtn").addEventListener("click", async () => {
 
   try {
     if (editingDocId) {
-      // Update existing
       await updateDoc(doc(db, "attendance", editingDocId), {
-        date, lesson, subject, type, subgroup,
+        date, lesson, subject, type, subgroup, teacher,
         students: studentsList, markedBy: name, updatedAt: new Date().toISOString()
       });
       showToast("✅ Запис оновлено");
       editingDocId = null;
-      document.getElementById("editBtn").textContent = "Редагувати";
-      document.getElementById("saveBtn").textContent = "Зберегти";
+      document.getElementById("editBtn").textContent = "✏️ Редагувати";
+      document.getElementById("saveBtn").textContent = "💾 Зберегти";
     } else {
       await addDoc(collection(db, "attendance"), {
-        date, lesson, subject, type, subgroup,
+        date, lesson, subject, type, subgroup, teacher,
         students: studentsList, markedBy: name, createdAt: new Date().toISOString()
       });
       showToast("✅ Збережено");
