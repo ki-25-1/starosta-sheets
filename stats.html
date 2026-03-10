@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+content="width=device-width, initial-scale=1">
+
+<title>Статистика</title>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<link rel="stylesheet" href="css/style.css">
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>Статистика відвідуваності</h2>
+
+<label>Дата від</label>
+<input type="date" id="dateFrom">
+
+<label>Дата до</label>
+<input type="date" id="dateTo">
+
+<button id="loadStats">Показати</button>
+
+<canvas id="chart"></canvas>
+
+</div>
+
+<script type="module" src="js/stats.js"></script>
+
+</body>
+
+</html>
