@@ -1,88 +1,95 @@
-<!DOCTYPE html>
-<html>
-<head>
 
+<!DOCTYPE html>
+<html lang="uk">
+<head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-
-<title>Відвідуваність</title>
-
+<title>Відвідуваність — КІ-25-1</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600&family=Manrope:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css">
-
 </head>
-
 <body>
 
 <header>
-
-<h2>Група КІ-25-1</h2>
-
-<div id="userInfo"></div>
-
+  <div class="header-left">
+    <span class="logo-text">КІ-25-1</span>
+    <h2>Відвідуваність</h2>
+  </div>
+  <div class="header-right">
+    <div id="userInfo"></div>
+    <a href="stats.html" class="btn-ghost">📊 Статистика</a>
+    <button id="logoutBtn" class="btn-ghost danger">Вийти</button>
+  </div>
 </header>
 
 <div class="container">
 
-<div class="card">
+  <div class="card">
+    <h3 class="card-title">Параметри заняття</h3>
+    <div class="controls">
+      <div class="field">
+        <label>Дата</label>
+        <input type="date" id="date">
+      </div>
+      <div class="field">
+        <label>Пара</label>
+        <select id="lesson">
+          <option>1</option>
+          <option>2</option>
+          <option>3</option>
+          <option>4</option>
+          <option>5</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Предмет</label>
+        <select id="subject"></select>
+      </div>
+      <div class="field">
+        <label>Тип</label>
+        <select id="type">
+          <option value="lecture">Лекція</option>
+          <option value="lab">Лабораторна</option>
+          <option value="seminar">Семінар</option>
+          <option value="practice">Практика</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Підгрупа</label>
+        <select id="subgroup">
+          <option value="all">Обидві</option>
+          <option value="1">Підгрупа 1</option>
+          <option value="2">Підгрупа 2</option>
+        </select>
+      </div>
+    </div>
+  </div>
 
-<div class="controls">
+  <div class="card">
+    <h3 class="card-title">Список студентів</h3>
+    <table id="studentsTable">
+      <thead>
+        <tr>
+          <th>Студент</th>
+          <th class="center">Підгрупа</th>
+          <th class="center">Присутній</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
 
-<input type="date" id="date">
-
-<select id="lesson">
-<option>1</option>
-<option>2</option>
-<option>3</option>
-<option>4</option>
-<option>5</option>
-</select>
-
-<select id="subject"></select>
-
-<select id="type">
-<option value="lecture">Лекція</option>
-<option value="lab">Лабораторна</option>
-<option value="seminar">Семінар</option>
-<option value="practice">Практика</option>
-</select>
-
-<select id="subgroup">
-<option value="1">Підгрупа 1</option>
-<option value="2">Підгрупа 2</option>
-</select>
+    <div class="buttons">
+      <button id="saveBtn">💾 Зберегти</button>
+      <button id="editBtn" class="btn-secondary">✏️ Редагувати</button>
+      <button id="deleteBtn" class="btn-danger">🗑️ Видалити</button>
+    </div>
+  </div>
 
 </div>
 
-</div>
-
-<div class="card">
-
-<table id="studentsTable">
-
-<tr>
-<th>Студент</th>
-<th>Присутній</th>
-</tr>
-
-</table>
-
-<div class="buttons">
-
-<button id="saveBtn">Зберегти</button>
-
-<button id="editBtn">Редагувати</button>
-
-<button id="deleteBtn">Видалити</button>
-
-<a href="stats.html">
-<button>Статистика</button>
-</a>
-
-</div>
-</div>
-</div>
+<div id="toast" class="toast"></div>
 
 <script type="module" src="js/dashboard.js"></script>
-
 </body>
 </html>

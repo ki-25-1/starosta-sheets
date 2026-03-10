@@ -1,41 +1,65 @@
+
 <!DOCTYPE html>
-<html>
-
+<html lang="uk">
 <head>
-
 <meta charset="UTF-8">
-
-<meta name="viewport"
-content="width=device-width, initial-scale=1">
-
-<title>Статистика</title>
-
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Статистика — КІ-25-1</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600&family=Manrope:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 <link rel="stylesheet" href="css/style.css">
-
 </head>
-
 <body>
+
+<header>
+  <div class="header-left">
+    <span class="logo-text">КІ-25-1</span>
+    <h2>Статистика</h2>
+  </div>
+  <div class="header-right">
+    <a href="dashboard.html" class="btn-ghost">← Назад</a>
+    <button id="logoutBtn" class="btn-ghost danger">Вийти</button>
+  </div>
+</header>
 
 <div class="container">
 
-<h2>Статистика відвідуваності</h2>
+  <div class="card">
+    <h3 class="card-title">Фільтри</h3>
+    <div class="controls">
+      <div class="field">
+        <label>Дата від</label>
+        <input type="date" id="dateFrom">
+      </div>
+      <div class="field">
+        <label>Дата до</label>
+        <input type="date" id="dateTo">
+      </div>
+      <div class="field">
+        <label>Предмет</label>
+        <select id="filterSubject"></select>
+      </div>
+      <div class="field" style="align-self:flex-end">
+        <button id="loadStats">📊 Показати</button>
+      </div>
+    </div>
+  </div>
 
-<label>Дата від</label>
-<input type="date" id="dateFrom">
+  <div id="summaryCards" class="summary-cards"></div>
 
-<label>Дата до</label>
-<input type="date" id="dateTo">
+  <div class="card">
+    <h3 class="card-title">Відвідуваність по днях</h3>
+    <canvas id="chart"></canvas>
+  </div>
 
-<button id="loadStats">Показати</button>
-
-<canvas id="chart"></canvas>
+  <div class="card">
+    <h3 class="card-title">По студентах</h3>
+    <div id="studentTable"></div>
+  </div>
 
 </div>
 
 <script type="module" src="js/stats.js"></script>
-
 </body>
-
 </html>

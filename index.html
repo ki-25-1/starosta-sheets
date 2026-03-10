@@ -1,32 +1,31 @@
-<!DOCTYPE html>
-<html>
-<head>
 
+<!DOCTYPE html>
+<html lang="uk">
+<head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-
-<title>Вхід</title>
-
+<title>Вхід — КІ-25-1</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600&family=Manrope:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css">
-
 </head>
+<body class="login-page">
 
-<body>
+<div class="login-wrap">
+  <div class="login-brand">
+    <div class="brand-icon">📋</div>
+    <h1>Система відвідуваності</h1>
+    <p>Група КІ-25-1</p>
+  </div>
 
-<div class="loginBox">
-
-<h2>Система відвідуваності</h2>
-
-<input id="email" placeholder="Email">
-
-<input id="password" type="password" placeholder="Пароль">
-
-<button id="loginBtn">Увійти</button>
-
+  <div class="loginBox">
+    <input id="email" type="email" placeholder="Email" autocomplete="username">
+    <input id="password" type="password" placeholder="Пароль" autocomplete="current-password">
+    <div id="errorMsg" class="error-msg"></div>
+    <button id="loginBtn">Увійти</button>
+  </div>
 </div>
 
 <script type="module" src="js/auth.js"></script>
-<script type="module" src="js/seed.js"></script>
-
 </body>
 </html>
