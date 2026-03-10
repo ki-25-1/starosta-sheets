@@ -72,6 +72,7 @@ async function loadStats() {
       `<p class="no-data">Немає даних за вибраний період</p>`;
     if (chartInstance) { chartInstance.destroy(); chartInstance = null; }
     document.getElementById("studentTable").innerHTML = "";
+    document.getElementById("lessonsLog").innerHTML = "";
     return;
   }
 
@@ -103,6 +104,7 @@ async function loadStats() {
   });
 
   renderStudentTable(studentStats);
+  renderLessonsLog(records);
 
   // ─── Summary cards ────────────────────────────────────────────────────────
   const totalLessons = records.length;
@@ -179,6 +181,75 @@ function renderStudentTable(stats) {
       <thead><tr><th>Студент</th><th class="center">Занять</th><th class="center">%</th></tr></thead>
       <tbody>${rows}</tbody>
     </table>
+  `;
+}
+
+function renderLessonsLog(records) {
+  const typeLabels = {
+    lecture: "Лекція", lab: "Лабораторна",
+    seminar: "Семінар", practice: "Практика"
+  };
+
+  // Sort by date desc, then lesson asc
+  const sorted = [...records].sort((a, b) => {
+    if (b.date !== a.date) return b.date.localeCompare(a.date);
+    return Number(a.lesson) - Number(b.lesson);
+  });
+
+  const rows = sorted.map(r => {
+    const present = r.students.filter(s => s.present).length;
+    const total = r.students.length;
+    const pct = Math.round(present / total * 100);
+    const cls = pct >= 75 ? "good" : pct >= 50 ? "warn" : "bad";
+
+    // Format date nicely
+    const [y, m, d] = r.date.split("-");
+    const dateFormatted = `${d}.${m}.${y}`;
+
+    // Who marked it and when
+    const markedBy = r.markedBy || "—";
+    const updatedAt = r.updatedAt
+      ? `оновлено ${new Date(r.updatedAt).toLocaleString("uk-UA", { day:"2-digit", month:"2-digit", hour:"2-digit", minute:"2-digit" })}`
+      : r.createdAt
+        ? new Date(r.createdAt).toLocaleString("uk-UA", { day:"2-digit", month:"2-digit", hour:"2-digit", minute:"2-digit" })
+        : "—";
+
+    const subgroupLabel = r.subgroup === "all" || !r.subgroup ? "Обидві підгрупи"
+      : `Підгрупа ${r.subgroup}`;
+
+    return `<tr>
+      <td><strong>${dateFormatted}</strong></td>
+      <td class="center">Пара ${r.lesson}</td>
+      <td>${r.subject || "—"}</td>
+      <td class="center"><span class="type-badge">${typeLabels[r.type] || r.type || "—"}</span></td>
+      <td class="center">${subgroupLabel}</td>
+      <td class="center"><span class="pct-badge ${cls}">${present}/${total} (${pct}%)</span></td>
+      <td>
+        <div class="marked-by">
+          <span class="marked-name">👤 ${markedBy}</span>
+          <span class="marked-time">${updatedAt}</span>
+        </div>
+      </td>
+    </tr>`;
+  }).join("");
+
+  document.getElementById("lessonsLog").innerHTML = `
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>Дата</th>
+            <th class="center">Пара</th>
+            <th>Предмет</th>
+            <th class="center">Тип</th>
+            <th class="center">Підгрупа</th>
+            <th class="center">Відвідали</th>
+            <th>Відмітив</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
   `;
 }
 

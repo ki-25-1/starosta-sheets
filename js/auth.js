@@ -3,8 +3,16 @@ import { signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gsta
 import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 // If already logged in — redirect to dashboard
-onAuthStateChanged(auth, (user) => {
+onAuthStateChanged(auth, async (user) => {
   if (user) {
+    // Refresh data from Firestore in case localStorage is stale
+    const { doc, getDoc } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
+    const snap = await getDoc(doc(db, "admins", user.uid));
+    if (snap.exists()) {
+      localStorage.setItem("uid", user.uid);
+      localStorage.setItem("name", snap.data().name);
+      localStorage.setItem("role", snap.data().role);
+    }
     window.location = "dashboard.html";
   }
 });
