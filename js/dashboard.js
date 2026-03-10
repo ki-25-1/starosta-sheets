@@ -46,26 +46,32 @@ let subjectsData = {}; // name → { teachers: { "1": "...", "2": "...", "all": 
 
 // ─── Load subjects ─────────────────────────────────────────────────────────────
 async function loadSubjects() {
-  const snap = await getDocs(collection(db, "subjects"));
-  const select = document.getElementById("subject");
-  select.innerHTML = "";
-  subjectsData = {};
+  try {
+    const snap = await getDocs(collection(db, "subjects"));
+    const select = document.getElementById("subject");
+    select.innerHTML = "";
+    subjectsData = {};
 
-  if (snap.empty) {
-    select.innerHTML = `<option value="">— немає предметів —</option>`;
-    return;
+    if (snap.empty) {
+      select.innerHTML = `<option value="">— немає предметів —</option>`;
+      return;
+    }
+
+    snap.forEach(d => {
+      const data = d.data();
+      // Guard: skip documents where name is not a plain string
+      if (!data.name || typeof data.name !== "string") return;
+      subjectsData[data.name] = data;
+      const opt = document.createElement("option");
+      opt.value = data.name;
+      opt.textContent = data.name;
+      select.appendChild(opt);
+    });
+
+    updateTypeOptions();
+  } catch (err) {
+    console.error("loadSubjects error:", err);
   }
-
-  snap.forEach(d => {
-    const data = d.data();
-    subjectsData[data.name] = data;
-    const opt = document.createElement("option");
-    opt.value = data.name;
-    opt.textContent = data.name;
-    select.appendChild(opt);
-  });
-
-  updateTeacherField();
 }
 
 // ─── Auto-fill teacher based on subject + type + subgroup ────────────────────
@@ -94,7 +100,49 @@ function updateTeacherField() {
   teacherInput.value = teacher;
 }
 
-document.getElementById("subject").addEventListener("change", updateTeacherField);
+// ─── Filter lesson types based on subject ────────────────────────────────────
+function updateTypeOptions() {
+  const subject = document.getElementById("subject").value;
+  const typeSelect = document.getElementById("type");
+  const currentType = typeSelect.value;
+
+  const allTypes = [
+    { value: "lecture",  label: "Лекція" },
+    { value: "lab",      label: "Лабораторна" },
+    { value: "seminar",  label: "Семінар" },
+    { value: "practice", label: "Практика" }
+  ];
+
+  if (!subject || !subjectsData[subject]) {
+    // Show all if no subject selected
+    typeSelect.innerHTML = allTypes.map(t =>
+      `<option value="${t.value}">${t.label}</option>`
+    ).join("");
+    return;
+  }
+
+  const teachers = subjectsData[subject].teachers || {};
+  const availableTypes = allTypes.filter(t => teachers[t.value]);
+
+  // If no type restrictions defined — show all
+  const typesToShow = availableTypes.length > 0 ? availableTypes : allTypes;
+
+  typeSelect.innerHTML = typesToShow.map(t =>
+    `<option value="${t.value}" ${t.value === currentType ? "selected" : ""}>${t.label}</option>`
+  ).join("");
+
+  // If current selection no longer available — reset to first
+  const values = typesToShow.map(t => t.value);
+  if (!values.includes(typeSelect.value)) {
+    typeSelect.value = values[0];
+  }
+
+  updateTeacherField();
+}
+
+document.getElementById("subject").addEventListener("change", () => {
+  updateTypeOptions();
+});
 document.getElementById("subgroup").addEventListener("change", updateTeacherField);
 document.getElementById("type").addEventListener("change", updateTeacherField);
 
