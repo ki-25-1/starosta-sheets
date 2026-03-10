@@ -2,24 +2,33 @@ import { auth, db } from "./firebase.js";
 import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import {
   collection, getDocs, addDoc, deleteDoc, updateDoc,
-  doc, query, where
+  doc, query, where, getDoc
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-// ─── Auth guard ────────────────────────────────────────────────────────────────
-onAuthStateChanged(auth, (user) => {
-  if (!user) window.location = "index.html";
+let role = null;
+let name = null;
+
+// ─── Auth guard + load user from Firestore ─────────────────────────────────────
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { window.location = "index.html"; return; }
+
+  const snap = await getDoc(doc(db, "admins", user.uid));
+  if (!snap.exists()) { await signOut(auth); window.location = "index.html"; return; }
+
+  name = snap.data().name;
+  role = snap.data().role;
+
+  const roleLabel = role === "starosta" ? "Староста" : role === "deputy" ? "Зам. старости" : "Викладач";
+  document.getElementById("userInfo").innerHTML =
+    `<span class="role-badge ${role}">${roleLabel}</span> ${name}`;
+
+  if (role !== "starosta") {
+    document.getElementById("deleteBtn").style.display = "none";
+  }
+
+  loadSubjects();
+  loadStudents();
 });
-
-const role = localStorage.getItem("role");
-const name = localStorage.getItem("name");
-
-document.getElementById("userInfo").innerHTML =
-  `<span class="role-badge ${role}">${role === "starosta" ? "Староста" : "Викладач"}</span> ${name}`;
-
-// Hide delete btn for non-starosta
-if (role !== "starosta") {
-  document.getElementById("deleteBtn").style.display = "none";
-}
 
 // ─── Logout ────────────────────────────────────────────────────────────────────
 document.getElementById("logoutBtn").addEventListener("click", async () => {
@@ -235,7 +244,3 @@ function showToast(msg, type = "success") {
   toast.className = `toast show ${type}`;
   setTimeout(() => { toast.className = "toast"; }, 3000);
 }
-
-// ─── Init ─────────────────────────────────────────────────────────────────────
-loadSubjects();
-loadStudents();

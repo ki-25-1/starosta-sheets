@@ -3,8 +3,12 @@ import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/
 import { collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 // ─── Auth guard ────────────────────────────────────────────────────────────────
-onAuthStateChanged(auth, (user) => {
-  if (!user) window.location = "index.html";
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { window.location = "index.html"; return; }
+  // verify still in admins
+  const { doc, getDoc } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
+  const snap = await getDoc(doc(db, "admins", user.uid));
+  if (!snap.exists()) { await signOut(auth); window.location = "index.html"; }
 });
 
 document.getElementById("logoutBtn").addEventListener("click", async () => {
