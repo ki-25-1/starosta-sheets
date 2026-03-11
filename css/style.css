@@ -126,8 +126,16 @@ input:focus, select:focus {
 }
 
 /* ─── Table ─────────────────────────────────────────────────────────────────── */
+.table-wrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin: 0 -24px;
+  padding: 0 24px;
+}
+
 table {
   width: 100%;
+  min-width: 400px;
   border-collapse: collapse;
 }
 
