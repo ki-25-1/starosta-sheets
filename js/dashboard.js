@@ -143,7 +143,10 @@ function updateTypeOptions() {
 document.getElementById("subject").addEventListener("change", () => {
   updateTypeOptions();
 });
-document.getElementById("subgroup").addEventListener("change", updateTeacherField);
+document.getElementById("subgroup").addEventListener("change", () => {
+  updateTeacherField();
+  renderTable(); // оновлюємо список студентів при зміні підгрупи
+});
 document.getElementById("type").addEventListener("change", updateTeacherField);
 
 // ─── State ─────────────────────────────────────────────────────────────────────
@@ -155,7 +158,11 @@ async function loadStudents() {
   const snap = await getDocs(collection(db, "students"));
   students = [];
   snap.forEach(d => students.push({ id: d.id, ...d.data() }));
-  students.sort((a, b) => a.subgroup - b.subgroup || a.name.localeCompare(b.name, "uk"));
+  // Сортуємо за полем order (твій порядок), якщо є — інакше за алфавітом
+  students.sort((a, b) => {
+    if (a.order != null && b.order != null) return a.order - b.order;
+    return a.name.localeCompare(b.name, "uk");
+  });
   renderTable();
 }
 
@@ -164,7 +171,13 @@ function renderTable(existing = null) {
   // Clear rows except header
   while (table.rows.length > 1) table.deleteRow(1);
 
-  students.forEach(st => {
+  // Фільтруємо за обраною підгрупою
+  const selectedSubgroup = document.getElementById("subgroup").value;
+  const filtered = selectedSubgroup === "all"
+    ? students
+    : students.filter(st => String(st.subgroup) === selectedSubgroup);
+
+  filtered.forEach(st => {
     const row = table.insertRow();
     row.className = st.subgroup == 1 ? "subgroup1" : "subgroup2";
     row.dataset.id = st.id;
